@@ -63,7 +63,7 @@ export default function NewChatInput() {
       <div className="flex items-center justify-end gap-4">
         <HelperText />
         <Button type="submit" disabled={isSubmitting}>
-          Enter
+          Send
           {isSubmitting ? (
             <Loader2Icon className="animate-spin" />
           ) : (
@@ -79,7 +79,7 @@ function HelperText() {
   return (
     <p className="text-sm text-muted-foreground text-xs">
       Press <span className="font-medium text-primary">Shift</span> +{" "}
-      <span className="font-medium text-primary">Enter</span> to add a new line
+      <span className="font-medium text-primary">Enter</span> to add a new line.
     </p>
   );
 }
