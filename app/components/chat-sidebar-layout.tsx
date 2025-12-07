@@ -17,6 +17,7 @@ import {
   SidebarMenuButton,
   SidebarMenuItem,
   SidebarProvider,
+  SidebarTrigger,
 } from "./ui/sidebar";
 
 type Props = {
@@ -74,7 +75,12 @@ export default function ChatSidebarLayout({ children, chatId }: Props) {
         </SidebarContent>
         <SidebarFooter />
       </Sidebar>
-      <SidebarInset>{children}</SidebarInset>
+      <SidebarInset>
+        <div className="relative top-0 left-0 flex items-center p-4">
+          <SidebarTrigger className="cursor-pointer" />
+        </div>
+        {children}
+      </SidebarInset>
     </SidebarProvider>
   );
 }
