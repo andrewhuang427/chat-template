@@ -5,7 +5,11 @@ export type ChatStreamedChunkType = "new-chat" | "message";
 
 export const chatRouter = createTRPCRouter({
   list: baseProcedure.query(async ({ ctx }) => {
-    return await ctx.prisma.chat.findMany();
+    return await ctx.prisma.chat.findMany({
+      orderBy: {
+        createdAt: "desc",
+      },
+    });
   }),
   new: baseProcedure
     .input(z.object({ message: z.string() }))

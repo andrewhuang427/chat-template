@@ -4,7 +4,7 @@ import { SidebarTrigger } from "../components/ui/sidebar";
 import { HydrateClient, trpc } from "../server/server";
 
 export default async function Home() {
-  await trpc.hello.prefetch({ text: "Andrew" });
+  await trpc.chat.list.prefetch();
 
   return (
     <HydrateClient>
@@ -14,7 +14,7 @@ export default async function Home() {
             <SidebarTrigger className="cursor-pointer" />
           </div>
           <div className="grow flex flex-col gap-6 items-center justify-center p-4">
-            <div className="text-xl">Chat</div>
+            <div className="font-mono">Creator</div>
             <NewChatInput />
           </div>
         </div>

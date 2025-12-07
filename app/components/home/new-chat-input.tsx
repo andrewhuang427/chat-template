@@ -1,6 +1,7 @@
 "use client";
 
 import { CornerDownLeftIcon, Loader2Icon } from "lucide-react";
+import { useRouter } from "next/navigation";
 import React, { useRef, useState } from "react";
 import { toast } from "sonner";
 import { trpc } from "../trpc-provider";
@@ -12,6 +13,8 @@ export default function NewChatInput() {
   const [isSubmitting, setIsSubmitting] = useState(false);
 
   const { mutateAsync: createNewChat } = trpc.chat.new.useMutation();
+  const utils = trpc.useUtils();
+  const router = useRouter();
 
   const textareaRef = useRef<HTMLTextAreaElement>(null);
 
@@ -37,7 +40,13 @@ export default function NewChatInput() {
       setIsSubmitting(true);
       const response = await createNewChat({ message });
       for await (const chunk of response) {
-        console.log(chunk);
+        if (chunk.type === "new-chat") {
+          router.push(`/${chunk.content}`);
+          utils.chat.list.invalidate();
+        }
+        if (chunk.type === "message") {
+          console.log(chunk.content);
+        }
       }
       setMessage("");
     } catch {
