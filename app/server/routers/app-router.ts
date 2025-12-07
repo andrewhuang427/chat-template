@@ -1,5 +1,6 @@
 import { z } from "zod";
 import { baseProcedure, createTRPCRouter } from "../trpc";
+import { chatRouter } from "./chat-router";
 
 export const appRouter = createTRPCRouter({
   hello: baseProcedure.input(z.object({ text: z.string() })).query((opts) => {
@@ -7,13 +8,7 @@ export const appRouter = createTRPCRouter({
       greeting: `Hello, ${opts.input.text}!`,
     };
   }),
-  stream: baseProcedure
-    .input(z.object({ message: z.string() }))
-    .mutation(async function* () {
-      for (let i = 0; i < 3; i++) {
-        await new Promise((resolve) => setTimeout(resolve, 500));
-        yield i;
-      }
-    }),
+  chat: chatRouter,
 });
+
 export type AppRouter = typeof appRouter;

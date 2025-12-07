@@ -11,7 +11,7 @@ export default function NewChatInput() {
   const [message, setMessage] = useState("");
   const [isSubmitting, setIsSubmitting] = useState(false);
 
-  const { mutateAsync: newChat } = trpc.stream.useMutation();
+  const { mutateAsync: createNewChat } = trpc.chat.new.useMutation();
 
   const textareaRef = useRef<HTMLTextAreaElement>(null);
 
@@ -35,7 +35,7 @@ export default function NewChatInput() {
     }
     try {
       setIsSubmitting(true);
-      const response = await newChat({ message });
+      const response = await createNewChat({ message });
       for await (const chunk of response) {
         console.log(chunk);
       }
