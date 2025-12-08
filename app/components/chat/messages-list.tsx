@@ -3,6 +3,7 @@
 import { cn } from "../../lib/utils";
 import { useChatStreamStore } from "../../stores/chat-stream-store";
 import { trpc } from "../trpc-provider";
+import MessageMarkdown from "./message-markdown";
 
 type Props = {
   chatId: string;
@@ -25,11 +26,11 @@ export default function MessagesList({ chatId }: Props) {
           >
             <div
               className={cn(
-                "p-2 rounded-md text-sm",
-                isUser && "bg-secondary text-secondary-foreground"
+                "rounded-md",
+                isUser && "bg-secondary text-secondary-foreground p-2.5"
               )}
             >
-              {message.content}
+              <MessageMarkdown content={message.content} />
             </div>
           </div>
         );
@@ -49,7 +50,7 @@ export function StreamingMessage({ chatId }: { chatId: string }) {
 
   return (
     <div className="flex w-full justify-start">
-      <div className="p-2 rounded-md text-sm">{streamingContent}</div>
+      <MessageMarkdown content={streamingContent} />
     </div>
   );
 }
