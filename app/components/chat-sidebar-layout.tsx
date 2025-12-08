@@ -76,7 +76,7 @@ export default function ChatSidebarLayout({ children, chatId }: Props) {
         <SidebarFooter />
       </Sidebar>
       <SidebarInset>
-        <div className="relative top-0 left-0 flex items-center p-4">
+        <div className="sticky top-0 left-0 flex items-center p-4 z-10">
           <SidebarTrigger className="cursor-pointer" />
         </div>
         {children}
