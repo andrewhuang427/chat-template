@@ -1,3 +1,4 @@
+import { ChatCompletionMessageParam } from "openai/resources/chat/completions.mjs";
 import { z } from "zod";
 import { baseProcedure, createTRPCRouter } from "../trpc";
 
@@ -32,9 +33,7 @@ export const chatRouter = createTRPCRouter({
       try {
         // 1. create a new chat
         const newChat = await ctx.prisma.chat.create({
-          data: {
-            name: "New Chat",
-          },
+          data: { name: "New Chat" },
         });
 
         yield { type: "new-chat", content: newChat.id };
@@ -74,7 +73,68 @@ export const chatRouter = createTRPCRouter({
           },
         });
       } catch (error) {
-        console.error("error", error);
+        throw error;
+      }
+    }),
+  send: baseProcedure
+    .input(z.object({ chatId: z.string(), message: z.string() }))
+    .mutation(async function* ({
+      ctx,
+      input,
+    }): AsyncGenerator<{ type: "message"; content: string }> {
+      try {
+        // 1. Get all previous messages for context
+        const previousMessages = await ctx.prisma.message.findMany({
+          where: { chatId: input.chatId },
+          orderBy: { createdAt: "asc" },
+        });
+
+        // 2. Create user's message
+        await ctx.prisma.message.create({
+          data: {
+            role: "USER",
+            content: input.message,
+            chatId: input.chatId,
+          },
+        });
+
+        // 3. Build messages array for OpenAI
+        const messages: ChatCompletionMessageParam[] = [
+          { role: "system" as const, content: "You are a helpful assistant." },
+          ...previousMessages.map((msg) => ({
+            role:
+              msg.role === "USER"
+                ? "user"
+                : ("assistant" as "user" | "assistant"),
+            content: msg.content,
+          })),
+          { role: "user" as const, content: input.message },
+        ];
+
+        // 4. Stream assistant's response
+        const stream = await ctx.openai.chat.completions.create({
+          stream: true,
+          model: "gpt-4o-mini",
+          messages,
+        });
+
+        let fullMessage = "";
+        for await (const chunk of stream) {
+          const delta = chunk.choices[0]?.delta?.content ?? "";
+          fullMessage += delta;
+          yield { type: "message", content: delta };
+        }
+
+        // 5. Create assistant's response message with the full streamed message
+        await ctx.prisma.message.create({
+          data: {
+            role: "ASSISTANT",
+            content: fullMessage,
+            chatId: input.chatId,
+          },
+        });
+      } catch (error) {
+        throw error;
       }
     }),
 });

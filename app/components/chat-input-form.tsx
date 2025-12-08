@@ -2,6 +2,7 @@
 
 import { CornerDownLeftIcon, Loader2Icon } from "lucide-react";
 import { useRef, useState } from "react";
+import { toast } from "sonner";
 import { cn } from "../lib/utils";
 import { Button } from "./ui/button";
 import { Textarea } from "./ui/textarea";
@@ -10,7 +11,7 @@ type Props = {
   className?: string;
   placeholder: string;
   isSubmitting: boolean;
-  onSubmit: (message: string) => void;
+  onSubmit: (message: string) => Promise<void>;
 };
 
 export default function ChatInputForm({
@@ -30,13 +31,17 @@ export default function ChatInputForm({
     const isEnterWithoutShift = e.key === "Enter" && !e.shiftKey;
     if (isEnterWithoutShift) {
       e.preventDefault();
-      onSubmit(message);
+      handleSubmit();
     }
   }
 
-  function handleSubmit(e: React.FormEvent<HTMLFormElement>) {
-    e.preventDefault();
-    onSubmit(message);
+  async function handleSubmit() {
+    try {
+      setMessage("");
+      await onSubmit(message);
+    } catch {
+      toast.error("Failed to send message");
+    }
   }
 
   return (
@@ -45,7 +50,10 @@ export default function ChatInputForm({
         "flex flex-col gap-4 max-w-2xl w-full p-4 bg-card rounded-lg border",
         className
       )}
-      onSubmit={handleSubmit}
+      onSubmit={(e) => {
+        e.preventDefault();
+        handleSubmit();
+      }}
     >
       <Textarea
         ref={textareaRef}
