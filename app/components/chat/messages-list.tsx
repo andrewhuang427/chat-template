@@ -16,6 +16,7 @@ export default function MessagesList({ chatId }: Props) {
     <div className="grow flex flex-col gap-6">
       {messages?.map((message) => {
         const isUser = message.role === "USER";
+
         return (
           <div
             key={message.id}
@@ -30,7 +31,11 @@ export default function MessagesList({ chatId }: Props) {
                 isUser && "bg-secondary text-secondary-foreground p-2.5"
               )}
             >
-              <MessageMarkdown content={message.content} />
+              {isUser ? (
+                message.content
+              ) : (
+                <MessageMarkdown content={message.content} />
+              )}
             </div>
           </div>
         );
