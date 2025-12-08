@@ -1,4 +1,5 @@
 import ChatSidebarLayout from "../../components/chat-sidebar-layout";
+import MessagesList from "../../components/chat/messages-list";
 import { HydrateClient, trpc } from "../../server/server";
 
 type Props = {
@@ -12,7 +13,9 @@ export default async function Home({ params }: Props) {
   return (
     <HydrateClient>
       <ChatSidebarLayout chatId={chatId}>
-        <div className="grow flex items-center justify-center">{chatId}</div>
+        <div className="max-w-3xl mx-auto w-full">
+          <MessagesList chatId={chatId} />
+        </div>
       </ChatSidebarLayout>
     </HydrateClient>
   );
