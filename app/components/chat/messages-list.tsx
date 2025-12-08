@@ -27,7 +27,7 @@ export default function MessagesList({ chatId }: Props) {
           >
             <div
               className={cn(
-                "rounded-md",
+                "rounded-md text-sm",
                 isUser && "bg-secondary text-secondary-foreground p-2.5"
               )}
             >
