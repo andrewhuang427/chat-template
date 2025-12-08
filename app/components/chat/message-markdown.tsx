@@ -22,7 +22,7 @@ const markdownComponents: Components = {
     return <h6 {...props} className="text-xs font-bold my-2" />;
   },
   p: ({ ...props }: ComponentProps<"p">) => {
-    return <p {...props} className="text-sm my-4" />;
+    return <p {...props} className="text-sm leading-relaxed my-4" />;
   },
   ul: ({ ...props }: ComponentProps<"ul">) => {
     return <ul {...props} className="list-disc ml-4 my-4" />;
@@ -31,7 +31,7 @@ const markdownComponents: Components = {
     return <ol {...props} className="list-decimal ml-4 my-4" />;
   },
   li: ({ ...props }: ComponentProps<"li">) => {
-    return <li {...props} className="text-sm my-2" />;
+    return <li {...props} className="text-sm leading-relaxed my-2" />;
   },
   hr: ({ ...props }: ComponentProps<"hr">) => {
     return <hr {...props} className="my-4" />;
