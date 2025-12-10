@@ -15,8 +15,8 @@ export default function NewChatInput() {
   const { mutateAsync: createNewChat } = trpc.chat.new.useMutation();
   const { startStreaming, appendToken, clearStreaming } = useChatStreamStore();
 
-  const { optimisticChatResponsesUpdate } = useOptimisticChatResponsesUpdate();
   const { optimisticChatNameUpdate } = useOptimisticChatNameUpdate();
+  const { optimisticChatResponsesUpdate } = useOptimisticChatResponsesUpdate();
 
   const router = useRouter();
 
@@ -46,12 +46,9 @@ export default function NewChatInput() {
       }
 
       if (chatId != null) {
-        // 4. get the full streamed content before clearing
         const { chatIdToStreamingMessage } = useChatStreamStore.getState();
         const assistantContent = chatIdToStreamingMessage[chatId] ?? "";
         clearStreaming(chatId);
-
-        // 5. update the messages with the assistant's response
         optimisticChatResponsesUpdate(chatId, "ASSISTANT", assistantContent);
       }
     } catch {

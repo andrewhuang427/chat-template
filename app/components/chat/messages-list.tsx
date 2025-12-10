@@ -1,43 +1,37 @@
 "use client";
 
-import { cn } from "../../lib/utils";
+import { Loader } from "lucide-react";
+import { memo } from "react";
 import { useChatStreamStore } from "../../stores/chat-stream-store";
 import { trpc } from "../trpc-provider";
 import MessageMarkdown from "./message-markdown";
+import AssistantMessage from "./messages/assistant-message";
+import UserMessage from "./messages/user-message";
 
 type Props = {
   chatId: string;
 };
 
+const UserMessageMemo = memo(UserMessage, (prevProps, nextProps) => {
+  return prevProps.content === nextProps.content;
+});
+
+const AssistantMessageMemo = memo(AssistantMessage, (prevProps, nextProps) => {
+  return prevProps.content === nextProps.content;
+});
+
 export default function MessagesList({ chatId }: Props) {
   const { data: messages } = trpc.chat.responses.useQuery({ chatId });
 
   return (
-    <div className="grow flex flex-col gap-6">
+    <div className="grow flex flex-col gap-6 mb-8">
       {messages?.map((message) => {
         const isUser = message.role === "USER";
-
+        if (isUser) {
+          return <UserMessageMemo key={message.id} content={message.content} />;
+        }
         return (
-          <div
-            key={message.id}
-            className={cn(
-              "flex w-full",
-              isUser ? "justify-end" : "justify-start"
-            )}
-          >
-            <div
-              className={cn(
-                "rounded-md text-sm",
-                isUser && "bg-secondary text-secondary-foreground p-2.5"
-              )}
-            >
-              {isUser ? (
-                message.content
-              ) : (
-                <MessageMarkdown content={message.content} />
-              )}
-            </div>
-          </div>
+          <AssistantMessageMemo key={message.id} content={message.content} />
         );
       })}
       <StreamingMessage chatId={chatId} />
@@ -46,16 +40,25 @@ export default function MessagesList({ chatId }: Props) {
 }
 
 export function StreamingMessage({ chatId }: { chatId: string }) {
-  const { chatIdToStreamingMessage } = useChatStreamStore();
-  const streamingContent = chatIdToStreamingMessage[chatId];
+  const { chatIdToStreamingMessage, isStreaming } = useChatStreamStore();
 
-  if (!streamingContent) {
+  const isStreamingInProgress = isStreaming[chatId] === true;
+  const streamingContent = chatIdToStreamingMessage[chatId] ?? "";
+
+  if (!isStreamingInProgress) {
     return null;
   }
 
   return (
     <div className="flex w-full justify-start">
-      <MessageMarkdown content={streamingContent} />
+      {streamingContent === "" ? (
+        <div className="flex items-center gap-2 text-muted-foreground">
+          <Loader className="animate-spin size-4" />
+          <span className="text-sm">Assistant thinking ...</span>
+        </div>
+      ) : (
+        <MessageMarkdown content={streamingContent} />
+      )}
     </div>
   );
 }
