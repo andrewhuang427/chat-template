@@ -1,1 +1,1 @@
-# artifacts
+# Chat Template
