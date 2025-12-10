@@ -36,6 +36,10 @@ export default function ChatInputForm({
   }
 
   async function handleSubmit() {
+    if (isSubmitting) {
+      return;
+    }
+
     try {
       setMessage("");
       await onSubmit(message);
