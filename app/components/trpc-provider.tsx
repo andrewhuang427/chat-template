@@ -18,10 +18,13 @@ function getQueryClient() {
 }
 
 function getUrl() {
-  if (process.env.NEXT_PUBLIC_VERCEL_URL) {
-    return `https://${process.env.NEXT_PUBLIC_VERCEL_URL}/api/trpc`;
+  if (typeof window !== "undefined") {
+    return "/api/trpc";
   }
-  return `http://localhost:3000/api/trpc`;
+  if (process.env.VERCEL_URL) {
+    return `https://${process.env.VERCEL_URL}/api/trpc`;
+  }
+  return "http://localhost:3000/api/trpc";
 }
 
 export default function TRPCProvider(props: PropsWithChildren) {
