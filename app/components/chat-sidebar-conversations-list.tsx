@@ -1,7 +1,9 @@
 "use client";
 
+import { cn } from "@/lib/utils";
 import { Chat } from "@/prisma/generated/prisma/client";
-import { Trash } from "lucide-react";
+import { useChatStreamStore } from "@/stores/chat-stream-store";
+import { Loader2, Trash } from "lucide-react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useState } from "react";
@@ -37,7 +39,11 @@ function ConversationItem({ chat, selectedChatId }: ConversationItemProps) {
   const router = useRouter();
   const utils = trpc.useUtils();
 
+  const { isStreaming } = useChatStreamStore();
+
+  const isStreamingInProgress = isStreaming[chat.id] === true;
   const isSelected = chat.id === selectedChatId;
+  const isUserAwayFromStreamingChat = !isSelected && isStreamingInProgress;
 
   function handleDelete() {
     deleteChat({ chatId: chat.id });
@@ -60,18 +66,30 @@ function ConversationItem({ chat, selectedChatId }: ConversationItemProps) {
         onMouseLeave={() => setIsHovered(false)}
       >
         <div className="flex items-center gap-2">
-          <Link href={`/${chat.id}`} className="grow line-clamp-1">
+          <Link
+            href={`/${chat.id}`}
+            className={cn(
+              "grow line-clamp-1",
+              isUserAwayFromStreamingChat && "text-muted-foreground"
+            )}
+          >
             {chat.name}
           </Link>
-          {isHovered && (
-            <Button
-              size="icon-sm"
-              variant="ghost"
-              className="p-0! cursor-pointer size-3.5 mr-0.5"
-              onClick={handleDelete}
-            >
-              <Trash className="size-3.5" />
-            </Button>
+          {/* Only show loading spinner if user has navigated away from chat while
+          streaming */}
+          {isUserAwayFromStreamingChat ? (
+            <Loader2 className="size-3.5 animate-spin" />
+          ) : (
+            isHovered && (
+              <Button
+                size="icon-sm"
+                variant="ghost"
+                className="p-0! cursor-pointer size-3.5 mr-0.5"
+                onClick={handleDelete}
+              >
+                <Trash className="size-3.5" />
+              </Button>
+            )
           )}
         </div>
       </SidebarMenuButton>
