@@ -1,5 +1,6 @@
 "use client";
 
+import useOptimisticChatNameUpdate from "@/hooks/use-optimistic-chat-name-update";
 import { useRouter } from "next/navigation";
 import { useState } from "react";
 import { toast } from "sonner";
@@ -13,9 +14,10 @@ export default function NewChatInput() {
 
   const { mutateAsync: createNewChat } = trpc.chat.new.useMutation();
   const { startStreaming, appendToken, clearStreaming } = useChatStreamStore();
-  const { optimisticChatResponsesUpdate } = useOptimisticChatResponsesUpdate();
 
-  const utils = trpc.useUtils();
+  const { optimisticChatResponsesUpdate } = useOptimisticChatResponsesUpdate();
+  const { optimisticChatNameUpdate } = useOptimisticChatNameUpdate();
+
   const router = useRouter();
 
   async function handleSubmit(message: string) {
@@ -30,16 +32,13 @@ export default function NewChatInput() {
       const response = await createNewChat({ message: trimmedMessage });
       for await (const chunk of response) {
         if (chunk.type === "new-chat") {
-          chatId = chunk.content;
-
-          // 1. cancel any outgoing refetches to avoid overwriting optimistic update
-          await utils.chat.responses.cancel({ chatId: chatId });
-
-          // 2. optimistically add user's message
+          chatId = chunk.chatId;
           optimisticChatResponsesUpdate(chatId, "USER", trimmedMessage);
           startStreaming(chatId);
-          router.push(`/${chatId}`);
-          utils.chat.list.invalidate();
+          router.replace(`/${chatId}`);
+        }
+        if (chatId != null && chunk.type === "new-chat-name") {
+          optimisticChatNameUpdate(chatId, chunk.name);
         }
         if (chatId != null && chunk.type === "message") {
           appendToken(chatId, chunk.content);
@@ -47,12 +46,12 @@ export default function NewChatInput() {
       }
 
       if (chatId != null) {
-        // 3. get the full streamed content before clearing
+        // 4. get the full streamed content before clearing
         const { chatIdToStreamingMessage } = useChatStreamStore.getState();
         const assistantContent = chatIdToStreamingMessage[chatId] ?? "";
         clearStreaming(chatId);
 
-        // 4. update the messages with the assistant's response
+        // 5. update the messages with the assistant's response
         optimisticChatResponsesUpdate(chatId, "ASSISTANT", assistantContent);
       }
     } catch {

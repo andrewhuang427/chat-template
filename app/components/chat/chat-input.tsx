@@ -1,6 +1,5 @@
 "use client";
 
-import { useState } from "react";
 import useOptimisticChatResponsesUpdate from "../../hooks/use-optimistic-chat-responses-update";
 import { useChatStreamStore } from "../../stores/chat-stream-store";
 import ChatInputForm from "../chat-input-form";
@@ -11,13 +10,13 @@ type Props = {
 };
 
 export default function ChatInput({ chatId }: Props) {
-  const [isSubmitting, setIsSubmitting] = useState(false);
-
   const { mutateAsync: sendMessage } = trpc.chat.send.useMutation();
-  const { startStreaming, appendToken, clearStreaming } = useChatStreamStore();
+  const { isStreaming, startStreaming, appendToken, clearStreaming } =
+    useChatStreamStore();
   const { optimisticChatResponsesUpdate } = useOptimisticChatResponsesUpdate();
-
   const utils = trpc.useUtils();
+
+  const isStreamingInProgress = isStreaming[chatId] === true;
 
   async function handleSubmit(message: string) {
     const trimmedMessage = message.trim();
@@ -25,37 +24,30 @@ export default function ChatInput({ chatId }: Props) {
       return;
     }
 
-    try {
-      setIsSubmitting(true);
-      // 1. cancel any outgoing refetches to avoid overwriting optimistic update
-      await utils.chat.responses.cancel({ chatId });
-      optimisticChatResponsesUpdate(chatId, "USER", trimmedMessage);
+    // 1. cancel any outgoing refetches to avoid overwriting optimistic update
+    await utils.chat.responses.cancel({ chatId });
+    optimisticChatResponsesUpdate(chatId, "USER", trimmedMessage);
 
-      // 2. start streaming the response
-      startStreaming(chatId);
-      const response = await sendMessage({ chatId, message: trimmedMessage });
-      for await (const chunk of response) {
-        if (chunk.type === "message") {
-          appendToken(chatId, chunk.content);
-        }
-      }
-
-      // 3. get the full streamed content before clearing
-      const { chatIdToStreamingMessage } = useChatStreamStore.getState();
-      const assistantContent = chatIdToStreamingMessage[chatId] ?? "";
-      clearStreaming(chatId);
-
-      // 4. update the messages with the assistant's response
-      optimisticChatResponsesUpdate(chatId, "ASSISTANT", assistantContent);
-    } finally {
-      setIsSubmitting(false);
+    // 2. start streaming the response
+    startStreaming(chatId);
+    const response = await sendMessage({ chatId, message: trimmedMessage });
+    for await (const chunk of response) {
+      appendToken(chatId, chunk.content);
     }
+
+    // 3. get the full streamed content before clearing
+    const { chatIdToStreamingMessage } = useChatStreamStore.getState();
+    const assistantContent = chatIdToStreamingMessage[chatId] ?? "";
+    clearStreaming(chatId);
+
+    // 4. update the messages with the assistant's response
+    optimisticChatResponsesUpdate(chatId, "ASSISTANT", assistantContent);
   }
 
   return (
     <ChatInputForm
       placeholder="Ask me anything..."
-      isSubmitting={isSubmitting}
+      isSubmitting={isStreamingInProgress}
       onSubmit={handleSubmit}
       className="max-w-3xl w-full"
     />

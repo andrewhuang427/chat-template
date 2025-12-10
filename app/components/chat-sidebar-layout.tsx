@@ -64,7 +64,11 @@ export default function ChatSidebarLayout({ children, chatId }: Props) {
               <SidebarMenu>
                 {chats.map((chat) => (
                   <SidebarMenuItem key={chat.id}>
-                    <SidebarMenuButton asChild isActive={chat.id === chatId}>
+                    <SidebarMenuButton
+                      asChild
+                      isActive={chat.id === chatId}
+                      className="line-clamp-1"
+                    >
                       <Link href={`/${chat.id}`}>{chat.name}</Link>
                     </SidebarMenuButton>
                   </SidebarMenuItem>
