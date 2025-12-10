@@ -1,9 +1,6 @@
-"use client";
-
 import { MessageCirclePlus } from "lucide-react";
 import Link from "next/link";
-import { trpc } from "../components/trpc-provider";
-import { Button } from "./ui/button";
+import ChatSidebarConversationsList from "./chat-sidebar-conversations-list";
 import {
   Sidebar,
   SidebarContent,
@@ -19,6 +16,7 @@ import {
   SidebarProvider,
   SidebarTrigger,
 } from "./ui/sidebar";
+import { AGENT_NAME } from "./utils";
 
 type Props = {
   children: React.ReactNode;
@@ -26,8 +24,6 @@ type Props = {
 };
 
 export default function ChatSidebarLayout({ children, chatId }: Props) {
-  const { data: chats = [] } = trpc.chat.list.useQuery();
-
   return (
     <SidebarProvider
       style={
@@ -37,43 +33,30 @@ export default function ChatSidebarLayout({ children, chatId }: Props) {
         } as React.CSSProperties
       }
     >
-      <Sidebar collapsible="offcanvas" >
-        <SidebarHeader className="flex flex-row items-center h-12 mb-2 font-mono">
-          Creator
+      <Sidebar collapsible="offcanvas">
+        <SidebarHeader className="flex flex-row items-center h-12 font-mono">
+          {AGENT_NAME}
         </SidebarHeader>
         <SidebarContent>
-          <SidebarMenu>
-            <SidebarMenuItem>
-              <SidebarMenuButton asChild>
-                <Button
-                  variant="ghost"
-                  className="text-left w-full justify-start"
-                  asChild
-                >
-                  <Link href="/">
-                    <MessageCirclePlus className="size-4" />
-                    New Chat
-                  </Link>
-                </Button>
-              </SidebarMenuButton>
-            </SidebarMenuItem>
-          </SidebarMenu>
+          <SidebarGroup>
+            <SidebarGroupLabel>Actions</SidebarGroupLabel>
+            <SidebarGroupContent>
+              <SidebarMenu>
+                <SidebarMenuItem>
+                  <SidebarMenuButton asChild>
+                    <Link href="/">
+                      <MessageCirclePlus className="size-4" />
+                      New Chat
+                    </Link>
+                  </SidebarMenuButton>
+                </SidebarMenuItem>
+              </SidebarMenu>
+            </SidebarGroupContent>
+          </SidebarGroup>
           <SidebarGroup>
             <SidebarGroupLabel>Chats</SidebarGroupLabel>
             <SidebarGroupContent>
-              <SidebarMenu>
-                {chats.map((chat) => (
-                  <SidebarMenuItem key={chat.id}>
-                    <SidebarMenuButton
-                      asChild
-                      isActive={chat.id === chatId}
-                      className="line-clamp-1"
-                    >
-                      <Link href={`/${chat.id}`}>{chat.name}</Link>
-                    </SidebarMenuButton>
-                  </SidebarMenuItem>
-                ))}
-              </SidebarMenu>
+              <ChatSidebarConversationsList chatId={chatId} />
             </SidebarGroupContent>
           </SidebarGroup>
         </SidebarContent>

@@ -190,6 +190,12 @@ async function* streamMessage(
   }
 }
 
+function deleteChat(ctx: TRPCContext, chatId: string) {
+  return ctx.prisma.chat.delete({
+    where: { id: chatId },
+  });
+}
+
 function _toChatCompletionInput(
   previousMessages: Message[],
   newMessage: string
@@ -208,6 +214,7 @@ const ChatService = {
   getChatResponses,
   createChatAndStreamMessage,
   streamMessage,
+  deleteChat,
 };
 
 export default ChatService;

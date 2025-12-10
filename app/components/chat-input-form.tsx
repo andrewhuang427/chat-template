@@ -80,7 +80,7 @@ export default function ChatInputForm({
 
 function HelperText() {
   return (
-    <p className="text-sm text-muted-foreground text-xs">
+    <p className="text-muted-foreground text-sm">
       Press <span className="font-medium text-primary">Shift</span> +{" "}
       <span className="font-medium text-primary">Enter</span> to add a new line.
     </p>

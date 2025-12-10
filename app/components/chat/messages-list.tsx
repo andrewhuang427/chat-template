@@ -7,6 +7,7 @@ import { trpc } from "../trpc-provider";
 import MessageMarkdown from "./message-markdown";
 import AssistantMessage from "./messages/assistant-message";
 import UserMessage from "./messages/user-message";
+import { AGENT_NAME } from "../utils";
 
 type Props = {
   chatId: string;
@@ -54,7 +55,7 @@ export function StreamingMessage({ chatId }: { chatId: string }) {
       {streamingContent === "" ? (
         <div className="flex items-center gap-2 text-muted-foreground">
           <Loader className="animate-spin size-4" />
-          <span className="text-sm">Assistant thinking ...</span>
+          <span className="font-mono text-sm">{AGENT_NAME} thinking ...</span>
         </div>
       ) : (
         <MessageMarkdown content={streamingContent} />

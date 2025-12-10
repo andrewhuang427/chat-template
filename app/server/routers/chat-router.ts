@@ -21,6 +21,11 @@ export const chatRouter = createTRPCRouter({
     .mutation(function ({ ctx, input }) {
       return ChatService.streamMessage(ctx, input.chatId, input.message);
     }),
+  delete: baseProcedure
+    .input(z.object({ chatId: z.string() }))
+    .mutation(function ({ ctx, input }) {
+      return ChatService.deleteChat(ctx, input.chatId);
+    }),
 });
 
 export type ChatRouter = typeof chatRouter;
