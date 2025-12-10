@@ -24,7 +24,7 @@ export default function MessagesList({ chatId }: Props) {
   const { data: messages } = trpc.chat.responses.useQuery({ chatId });
 
   return (
-    <div className="grow flex flex-col gap-6 mb-8">
+    <div className="grow flex flex-col gap-6 my-8 px-2">
       {messages?.map((message) => {
         const isUser = message.role === "USER";
         if (isUser) {

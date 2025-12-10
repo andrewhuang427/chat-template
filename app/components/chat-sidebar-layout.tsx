@@ -37,7 +37,7 @@ export default function ChatSidebarLayout({ children, chatId }: Props) {
         } as React.CSSProperties
       }
     >
-      <Sidebar collapsible="offcanvas" variant="inset">
+      <Sidebar collapsible="offcanvas" >
         <SidebarHeader className="flex flex-row items-center h-12 mb-2 font-mono">
           Creator
         </SidebarHeader>
@@ -80,7 +80,7 @@ export default function ChatSidebarLayout({ children, chatId }: Props) {
         <SidebarFooter />
       </Sidebar>
       <SidebarInset>
-        <div className="sticky top-0 left-0 flex items-center p-4 z-10">
+        <div className="sticky top-0 left-0 flex items-center p-4 z-10 bg-background/90">
           <SidebarTrigger className="cursor-pointer" />
         </div>
         {children}
