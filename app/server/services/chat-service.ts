@@ -58,8 +58,8 @@ async function* createChatAndStreamMessage(
       },
     });
 
-    // 3. generate chat name and (fire and forget) update chat name
-    const chatNameResponse = await ctx.openai.chat.completions.create({
+    // 3. (fire and forget) kick off chat name completion
+    const chatNameResponsePromise = ctx.openai.chat.completions.create({
       model: "gpt-4o-mini",
       messages: [
         {
@@ -78,19 +78,6 @@ async function* createChatAndStreamMessage(
         },
       ],
     });
-
-    const chatName = chatNameResponse.choices[0]?.message?.content ?? "";
-
-    const updatedChatNamePromise = ctx.prisma.chat.update({
-      where: { id: newChat.id },
-      data: { name: chatName },
-    });
-
-    yield {
-      type: "new-chat-name",
-      chatId: newChat.id,
-      name: chatName,
-    };
 
     // 4. stream assistant's response
     const assistantResponseGenerator = await ctx.openai.chat.completions.create(
@@ -116,7 +103,22 @@ async function* createChatAndStreamMessage(
       };
     }
 
-    // 5. create assistant's response message with the full streamed message
+    // 5. wait for chat name response promise to finish + (fire and forget) save name
+    const chatNameResponse = await chatNameResponsePromise;
+    const chatName = chatNameResponse.choices[0]?.message?.content ?? "";
+
+    const updatedChatNamePromise = ctx.prisma.chat.update({
+      where: { id: newChat.id },
+      data: { name: chatName },
+    });
+
+    yield {
+      type: "new-chat-name",
+      chatId: newChat.id,
+      name: chatName,
+    };
+
+    // 6. create assistant's response message with the full streamed message
     await userMessagePromise;
     await Promise.all([
       ctx.prisma.message.create({
