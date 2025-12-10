@@ -3,6 +3,7 @@
 import { Chat } from "@/prisma/generated/prisma/client";
 import { Trash } from "lucide-react";
 import Link from "next/link";
+import { useRouter } from "next/navigation";
 import { useState } from "react";
 import { trpc } from "./trpc-provider";
 import { Button } from "./ui/button";
@@ -33,10 +34,18 @@ function ConversationItem({ chat, selectedChatId }: ConversationItemProps) {
   const [isHovered, setIsHovered] = useState(false);
 
   const { mutate: deleteChat } = trpc.chat.delete.useMutation();
+  const router = useRouter();
   const utils = trpc.useUtils();
+
+  const isSelected = chat.id === selectedChatId;
 
   function handleDelete() {
     deleteChat({ chatId: chat.id });
+
+    if (isSelected) {
+      router.push("/");
+    }
+
     utils.chat.list.setData(undefined, (prevConversations) =>
       prevConversations?.filter((c) => c.id !== chat.id)
     );
@@ -58,10 +67,10 @@ function ConversationItem({ chat, selectedChatId }: ConversationItemProps) {
             <Button
               size="icon-sm"
               variant="ghost"
-              className="!p-0 cursor-pointer"
+              className="p-0! cursor-pointer size-3.5 mr-0.5"
               onClick={handleDelete}
             >
-              <Trash className="size-4" />
+              <Trash className="size-3.5" />
             </Button>
           )}
         </div>
