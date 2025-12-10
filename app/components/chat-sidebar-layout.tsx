@@ -1,6 +1,7 @@
 import { MessageCirclePlus } from "lucide-react";
 import Link from "next/link";
 import ChatSidebarConversationsList from "./chat-sidebar-conversations-list";
+import ThemeToggle from "./theme-toggle";
 import {
   Sidebar,
   SidebarContent,
@@ -60,10 +61,14 @@ export default function ChatSidebarLayout({ children, chatId }: Props) {
             </SidebarGroupContent>
           </SidebarGroup>
         </SidebarContent>
-        <SidebarFooter />
+        <SidebarFooter>
+          <div className="flex item space-x-2 justify-end">
+            <ThemeToggle />
+          </div>
+        </SidebarFooter>
       </Sidebar>
       <SidebarInset>
-        <div className="sticky top-0 left-0 flex items-center p-4 z-10 bg-background/90">
+        <div className="sticky top-0 left-0 flex items-center p-4 z-10 bg-background/95">
           <SidebarTrigger className="cursor-pointer" />
         </div>
         {children}

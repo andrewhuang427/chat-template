@@ -62,7 +62,7 @@ export default function ChatInputForm({
       <Textarea
         ref={textareaRef}
         placeholder={placeholder}
-        className="border-none bg-card! focus-visible:ring-0 focus-visible:ring-offset-0 resize-none p-0 min-h-10"
+        className="border-none bg-card! focus-visible:ring-0 focus-visible:ring-offset-0 resize-none p-0 min-h-10 shadow-none"
         value={message}
         onChange={handleTextareaChange}
         onKeyDown={handleTextareaKeyDown}
