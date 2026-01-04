@@ -36,18 +36,35 @@ const markdownComponents: Components = {
   hr: ({ ...props }: ComponentProps<"hr">) => {
     return <hr {...props} className="my-4" />;
   },
-  code: ({ ...props }: ComponentProps<"code">) => {
+  pre: ({ children, ...props }: ComponentProps<"pre">) => {
     return (
-      <div className="bg-muted/40 rounded-md p-4 my-4">
-        <code {...props} className="text-xs" />
-      </div>
+      <pre
+        {...props}
+        className="bg-muted/40 rounded-md p-4 my-4 text-sm overflow-x-auto [&>code]:p-0 [&>code]:bg-transparent"
+      >
+        {children}
+      </pre>
     );
+  },
+  code: ({ children, ...props }: ComponentProps<"code">) => {
+    return (
+      <code {...props} className="bg-muted rounded px-1.5 py-1 text-xs">
+        {children}
+      </code>
+    );
+  },
+  img: ({ ...props }: ComponentProps<"img">) => {
+    // eslint-disable-next-line @next/next/no-img-element
+    return <img {...props} alt={props.alt ?? ""} className="my-4 rounded-lg" />;
+  },
+  a: ({ ...props }: ComponentProps<"a">) => {
+    return <a {...props} className="underline" />;
   },
 };
 
 export default function MessageMarkdown({ content }: { content: string }) {
   return (
-    <div className="prose dark:prose-invert">
+    <div className="prose dark:prose-invert w-full">
       <ReactMarkdown
         remarkPlugins={[remarkGfm]}
         components={markdownComponents}
